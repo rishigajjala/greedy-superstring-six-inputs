@@ -1,0 +1,35 @@
+name: Verify exact proof artifacts
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify release hashes
+        run: python3 verify_manifest.py
+
+      - name: Verify five-input certificates
+        run: python3 verify_five_string_certificates.py five_string_certificates.json
+
+      - name: Verify six-input certificates and symmetry coverage
+        run: >-
+          python3 generalize/verify_six_string_certificates_v2.py
+          generalize/six_string_certificates.jsonl.gz
+
+      - name: Verify the sharp family
+        run: python3 verify_sharp_family.py --max-t 250

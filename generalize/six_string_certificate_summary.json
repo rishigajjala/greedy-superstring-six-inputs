@@ -1,0 +1,13 @@
+{
+  "certificate_count": 43200,
+  "covered_case_count_by_involution": 86400,
+  "format": "greedy-superstring-six-string-lp-duals-v1",
+  "maximum_certificate_support": 29,
+  "maximum_denominator_limit_used": 32,
+  "maximum_numerical_ratio": 2.000000000000001,
+  "n": 6,
+  "normalization": "OPT=1",
+  "optimal_paths_per_order": 720,
+  "output": "research/greedy_superstring/generalize/six_string_certificates.jsonl.gz",
+  "representative_greedy_orders": 60
+}

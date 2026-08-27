@@ -1,0 +1,9 @@
+{
+  "conclusion": "The reverse-and-relabel variable permutation maps every representative LP exactly to its partner and covers all 120 greedy orders.",
+  "covered_greedy_orders": 120,
+  "inequality_systems_checked": 60,
+  "objectives_checked": 60,
+  "path_equalities_checked": 43200,
+  "representative_orders_checked": 60
+}
+

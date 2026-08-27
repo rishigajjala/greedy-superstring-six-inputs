@@ -1,0 +1,24 @@
+{
+  "conclusion": "Every normalized six-string case has min(-greedy_length) >= -2; hence the necessary-condition LP has greedy_length <= 2*OPT.",
+  "covered_cases_by_involution": 86400,
+  "header_metadata_validated": {
+    "certificate_count": 43200,
+    "covered_case_count_by_involution": 86400,
+    "format": "greedy-superstring-six-string-lp-duals-v1",
+    "n": 6,
+    "normalization": "OPT=1",
+    "optimal_paths_per_order": 720,
+    "representative_greedy_orders": 60
+  },
+  "maximum_certificate_support": 29,
+  "symmetry": {
+    "covered_greedy_orders": 120,
+    "inequality_rhs_systems_checked": 60,
+    "objectives_checked": 60,
+    "path_equalities_checked": 43200,
+    "representative_orders_checked": 60,
+    "variable_coordinates_checked": 36
+  },
+  "verified_representative_cases": 43200,
+  "weakest_dual_lower_bound": "-2"
+}
