@@ -33,6 +33,29 @@ The exact summaries include:
 
 The six-input verifier reconstructs the reverse-and-relabel involution and checks complete orbit coverage, row-multiset invariance, objective invariance, transformed path equalities, case order, metadata, and every exact rational dual certificate.
 
+## Verify in Lean 4
+
+The pinned Lean 4.33.1/mathlib 4.33.1 project kernel-checks the complete symbolic reduction from a literal greedy run to exact finite certificate coverage. Its top-level theorem, `FormalTheorem.literalGreedyRun_factorTwo`, proves `G <= 2*OPT` from the single proposition `CertificateCoverage n`; label reconstruction, canonical relabelling, chronology alignment, every generated dense coefficient, optimum-path normalization, and scaled Farkas weak duality are all discharged internally. Lean also contains an independent native exact checker for the finite corpora.
+
+```bash
+lake build
+lake build checkCertificates
+lake exe checkCertificates
+```
+
+Expected output:
+
+```text
+Lean exact certificate replay passed
+  five-input cases: 2880
+  six-input representatives: 43200
+  six-input cases covered by involution: 86400
+```
+
+The checker rebuilds every integer LP row, validates denominator-cleared stationarity and bounds, and replays the complete six-input LP symmetry. `Checker.checkPositionalCases_sound` proves that successful pure replay of a full positional corpus supplies `CertificateCoverage n`; `Checker.checkFiveCorpus_coverage_sound` specializes this to the public five-input format. CI additionally runs an axiom audit that permits only Lean's standard `propext`, `Classical.choice`, and `Quot.sound`; the formalization uses no `sorry`, `native_decide`, or custom axioms.
+
+The precise remaining boundary is file execution: a successful native `IO` run is not itself stored as a kernel proposition, and the concrete six-input representative symmetry is verified by that native checker. The one-through-four arithmetic core is formalized separately, with its literal-run case split not yet assembled into the top-level theorem. See [LEAN_FORMALIZATION.md](LEAN_FORMALIZATION.md) for the theorem signatures and exact trust boundary.
+
 ## Build the PDF
 
 The checked-in PDF was built with ReportLab 4.4.9:
@@ -59,6 +82,7 @@ The checked corpora are part of the proof; generation is not required to verify 
 ## Repository map
 
 - `FORMAL_PAPER.md`, `build_formal_paper.py`, and `output/pdf/`: manuscript source, builder, and rendered paper.
+- `Lean/`, `lakefile.toml`, and `lean-toolchain`: theorem-bearing Lean modules, exact native checker, and pinned project configuration; [LEAN_FORMALIZATION.md](LEAN_FORMALIZATION.md) documents their scope.
 - `five_string_lp_model.py`, `verify_five_string_certificates.py`, and `five_string_certificates.json`: five-input exact model, verifier, and corpus.
 - `generalize/six_string_lp_model.py`, `generalize/verify_six_string_certificates_v2.py`, and the compressed corpus: six-input exact proof artifacts.
 - `verify_sharp_family.py`: direct verification of the asymptotically sharp five-word family.

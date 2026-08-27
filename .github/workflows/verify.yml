@@ -10,7 +10,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -33,3 +33,19 @@ jobs:
 
       - name: Verify the sharp family
         run: python3 verify_sharp_family.py --max-t 250
+
+      - name: Build and audit the Lean formalization
+        uses: leanprover/lean-action@v1
+        with:
+          build: true
+          test: false
+          lint: false
+          use-mathlib-cache: true
+          axiom-audit: true
+          axiom-audit-root: GreedySuperstring
+
+      - name: Build the native Lean certificate checker
+        run: lake build checkCertificates
+
+      - name: Replay all exact certificates in Lean
+        run: lake exe checkCertificates

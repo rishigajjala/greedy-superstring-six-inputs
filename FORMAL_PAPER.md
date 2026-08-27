@@ -8,7 +8,7 @@ repository: https://github.com/rishigajjala/greedy-superstring-six-inputs
 
 # Abstract
 
-Let S be a finite substring antichain of nonempty words over an arbitrary alphabet. The greedy shortest-common-superstring algorithm repeatedly merges an ordered pair of current words having maximum directed suffix-prefix overlap, with ties resolved arbitrarily. We prove that if 1 <= |S| <= 6, then every greedy run returns a common superstring G satisfying |G| <= 2 OPT(S). The proof is exact and computer-assisted. A globally maximal merge is shown to preserve both the substring antichain and all endpoint overlap interfaces, reducing every literal run to an edge-selection chronology on the original labels. After relabeling the final greedy path, 2,880 five-input cases and 86,400 six-input cases remain. Exact rational Farkas certificates prove the factor-two bound in every case; a reverse-and-relabel involution reduces the stored six-input corpus to 43,200 representatives. Verification uses only Python standard-library exact arithmetic. A five-word binary family has legal greedy ratio 2 - 4/(t+4), so the constant is asymptotically sharp already for five inputs. This result does not settle the unrestricted Greedy Superstring Conjecture.
+Let S be a finite substring antichain of nonempty words over an arbitrary alphabet. The greedy shortest-common-superstring algorithm repeatedly merges an ordered pair of current words having maximum directed suffix-prefix overlap, with ties resolved arbitrarily. We prove that if 1 <= |S| <= 6, then every greedy run returns a common superstring G satisfying |G| <= 2 OPT(S). The proof is exact and computer-assisted. A globally maximal merge is shown to preserve both the substring antichain and all endpoint overlap interfaces, reducing every literal run to an edge-selection chronology on the original labels. After relabeling the final greedy path, 2,880 five-input cases and 86,400 six-input cases remain. Exact rational Farkas certificates prove the factor-two bound in every case; a reverse-and-relabel involution reduces the stored six-input corpus to 43,200 representatives. Verification uses Python standard-library exact arithmetic, with an independent Lean 4 formalization of the complete literal-run-to-certificate-coverage reduction, exact certificate soundness, and a Lean-native exhaustive replay. A five-word binary family has legal greedy ratio 2 - 4/(t+4), so the constant is asymptotically sharp already for five inputs. This result does not settle the unrestricted Greedy Superstring Conjecture.
 
 # 1. Introduction
 
@@ -30,7 +30,7 @@ The parameterization must not be confused with recent work on inputs whose indiv
 
 The proof has three conceptual components. First, a structural lemma shows that a globally maximal greedy merge preserves the substring antichain and inherits all external overlaps from its two endpoints. Thus every current word can be represented exactly by a directed path through original inputs. Second, an optimal superstring is equivalent to a maximum-overlap Hamiltonian path through the reduced input family. Third, after canonical relabeling, finitely many chronology/path pairs remain. A necessary-condition linear program is associated with each pair, and exact rational dual certificates prove the desired bound.
 
-The finite calculation is part of the proof. Floating-point optimizer output is used only during discovery and contributes nothing to the theorem. The certificate checkers reconstruct every integer row, check every multiplier sign and stationarity coordinate with fractions.Fraction, and verify the exact bound. Section 8 gives a complete reproducibility ledger.
+The finite calculation is part of the proof. Floating-point optimizer output is used only during discovery and contributes nothing to the theorem. The certificate checkers reconstruct every integer row, check every multiplier sign and stationarity coordinate with fractions.Fraction, and verify the exact bound. Sections 8 and 9 give the reproducibility ledger and the exact scope of the Lean 4 development.
 
 # 2. Definitions and conventions
 
@@ -398,7 +398,38 @@ The six-input records are positional rather than carrying explicit case identifi
 
 An internal adversarial audit independently rederived the bridge lemmas, feasible-edge predicate, weak-duality signs, symmetry, and case counts. It also performed exhaustive small-word tests, cross-implementation comparisons, random literal-run embeddings, and negative controls that deliberately corrupted signs, values, bounds, row coefficients, case order, stream length, and metadata. These checks are internal validation, not independent peer review.
 
-# 9. Scope and limitations
+# 9. Lean 4 formalization and exact replay
+
+The repository includes a project pinned to Lean 4.33.1 and mathlib 4.33.1. The kernel-checked development formalizes directed overlap and merge lemmas, preservation of the reduced antichain, endpoint inheritance, occurrence ordering and Hamiltonian-path length bounds, literal and labelled greedy runs, exact path-length telescoping, automatic canonical relabelling and chronology alignment, every deterministic dense row and objective coordinate, the static relaxation inequalities, denominator-cleared Farkas weak duality, and transport across exact LP model isomorphisms.
+
+These pieces are composed in `FormalTheorem.literalGreedyRun_factorTwo`. Given a nonempty finite word instance, shortestness of its nominated common word, a literal singleton-ending greedy run, and the exact proposition `CertificateCoverage n`, the theorem concludes that the literal output length is at most twice optimum. `CertificateCoverage n` states only that every executable chronology/path pair has a valid exact record. Thus label reconstruction, relabelling, feasibility, generated primal construction, dense-array correctness, optimum-path existence, and weak duality are no longer external premises.
+
+A separate Lean-native executable rebuilds the deterministic integer LPs and replays the complete compact certificate streams. From the repository root, run
+
+```text
+lake build GreedySuperstring
+lake build checkCertificates
+lake exe checkCertificates
+```
+
+The final command reports
+
+```text
+Lean exact certificate replay passed
+  five-input cases: 2880
+  six-input representatives: 43200
+  six-input cases covered by involution: 86400
+```
+
+For every record, the Lean checker validates dimensions, scale, sparse-index uniqueness and range, multiplier signs, denominator-cleared stationarity, and the exact dual bound. For six inputs it independently checks the 36-coordinate reverse-and-relabel map, row/right-hand-side multiset invariance, objective and path-equality transport, disjoint chronology orbits, and complete coverage of all 86,400 cases.
+
+The theorem modules contain no `sorry`, `admit`, custom axiom, `unsafe` declaration, or `native_decide` proof. The continuous-integration axiom audit reports only the standard dependencies `propext`, `Classical.choice`, and `Quot.sound`.
+
+The distinction between the two Lean layers is material. Successful execution of an `IO` checker is not itself a proposition stored in the Lean kernel. The kernel proves that successful pure positional replay supplies certificate coverage, and it specializes this implication to the five-input corpus checker. The checked-in files are nevertheless parsed and executed by native `IO`, so the present release does not claim that their successful run is already stored as a closed kernel proposition. For six inputs, the native checker additionally validates the concrete representative-to-full-corpus LP symmetry; the kernel separately proves generic transport across an explicitly supplied model isomorphism.
+
+Accordingly, the earlier literal-run-to-generated-primal integration gap is closed. The remaining boundary for one closed file-backed declaration is proof-producing or kernel-reflected corpus ingestion, the concrete six-input symmetry transport, and the final derivation of the four-input `FourCase` split from every literal run. This separation does not weaken the mathematical computer-assisted proof in Sections 3 through 6, whose public exact corpora are independently replayed by the standard-library Python verifier. The exact module map, theorem signatures, axiom report, and artifact hashes are recorded in `LEAN_FORMALIZATION.md`.
+
+# 10. Scope and limitations
 
 This manuscript proves a fixed-input-cardinality theorem only. It does not prove or disprove the unrestricted Greedy Superstring Conjecture, and it establishes neither a seven-input theorem nor a seven-input counterexample.
 
@@ -406,7 +437,7 @@ The necessary-condition LP used here is sufficient through six inputs but admits
 
 The result is a new computer-assisted research artifact and has not been externally peer reviewed. Before journal submission, human authors should check every mathematical argument, fix authorship and licensing, archive the exact corpora and source at an immutable repository, and take responsibility for the claims.
 
-# 10. AI-use disclosure
+# 11. AI-use disclosure
 
 This draft, its exact-search code, certificate-generation workflow, and internal adversarial audits were developed with substantial assistance from OpenAI Codex and multiple model instances. The final theorem is supported by explicit mathematical reductions and independently checkable rational certificates, but AI assistance is not a substitute for external peer review. Any submitting authors must review the manuscript and proof artifacts in full and accept responsibility under the target venue's policy.
 
